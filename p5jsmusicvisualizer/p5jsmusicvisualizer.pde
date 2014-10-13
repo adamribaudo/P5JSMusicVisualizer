@@ -26,8 +26,6 @@ float colorHue = 0;
 float colorHueChange = .001;
 
 float perspectiveX = 1;
-PGraphics offlineImage;
-
 
 void setup()
 {
@@ -48,7 +46,6 @@ void setup()
   
   faceColors = new float[events.length];
   
-  offlineImage = createGraphics(width, height, P3D);
 }
 
 void draw()
@@ -79,8 +76,6 @@ void draw()
     executeEvents();
     incrementColorHue();
   }
-  
-  image(offlineImage, width/2, height/2);
 }
 
 int findMaxEvent()
@@ -128,7 +123,6 @@ void executeGlobalEvents()
       curGlobalEvent++;
 
 
-println(globalEvents[curGlobalEvent]);
   //0, 739, 2247, 3738, 5237, 6749, 6847, 8249
   switch(globalEvents[curGlobalEvent])
   {

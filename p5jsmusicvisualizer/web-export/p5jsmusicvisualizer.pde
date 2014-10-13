@@ -27,8 +27,6 @@ float colorHueChange = .001;
 
 float perspectiveX = 1;
 
-
-
 void setup()
 {
   size(800, 450, P3D);
@@ -48,7 +46,6 @@ void setup()
   
   faceColors = new float[events.length];
   
-  offlineImage = createGraphics(width, height, P3D);
 }
 
 void draw()
@@ -57,7 +54,7 @@ void draw()
   background(.5);
   float fov = PI/3.0;
   float cameraZ = (height/2.0) / tan(fov/2.0);
-  perspective(fov, float(width/perspectiveX)/float(height), 
+  perspective(fov, width/perspectiveX/float(height), 
             cameraZ/10.0, cameraZ*10.0);
 
   //JavaScript
@@ -80,7 +77,7 @@ void draw()
     incrementColorHue();
   }
   
-  image(offlineImage, width/2, height/2);
+  crop(mouseX, mouseY, mouseX, mouseY);
 }
 
 int findMaxEvent()
@@ -152,7 +149,6 @@ println(globalEvents[curGlobalEvent]);
     case 6847:
     perspectiveX = 1;
     break;
-  break;
   }
 }
 
