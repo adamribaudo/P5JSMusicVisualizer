@@ -26,7 +26,7 @@ float colorHue = 0;
 float colorHueChange = .001;
 
 float perspectiveX = 1;
-PGraphics offlineImage;
+
 
 
 void setup()
@@ -53,13 +53,11 @@ void setup()
 
 void draw()
 {
-  offlineImage.beginDraw();
-    
-  offlineImage.colorMode(HSB, 1);
-  offlineImage.background(.5);
+  colorMode(HSB, 1);
+  background(.5);
   float fov = PI/3.0;
   float cameraZ = (height/2.0) / tan(fov/2.0);
-  offlineImage.perspective(fov, width/perspectiveX/float(height), 
+  perspective(fov, float(width/perspectiveX)/float(height), 
             cameraZ/10.0, cameraZ*10.0);
 
   //JavaScript
@@ -75,17 +73,14 @@ void draw()
     cameraZ = -playHead - 500;
     objectStartZ = -playHead;
 
-    offlineImage.camera(0, -200, cameraZ, 0.0, -200, 0.0, 0.0, 1.0, 0.0);
+    camera(0, -200, cameraZ, 0.0, -200, 0.0, 0.0, 1.0, 0.0);
+
     executeGlobalEvents();
     executeEvents();
     incrementColorHue();
-    
   }
-  offlineImage.endDraw();
-  println(mouseX);
-  //offlineImage.clip(mouseX, mouseY, mouseX, mouseY);
-  image(offlineImage, 0, 0);
-
+  
+  image(offlineImage, width/2, height/2);
 }
 
 int findMaxEvent()
@@ -133,6 +128,7 @@ void executeGlobalEvents()
       curGlobalEvent++;
 
 
+println(globalEvents[curGlobalEvent]);
   //0, 739, 2247, 3738, 5237, 6749, 6847, 8249
   switch(globalEvents[curGlobalEvent])
   {
@@ -156,6 +152,7 @@ void executeGlobalEvents()
     case 6847:
     perspectiveX = 1;
     break;
+  break;
   }
 }
 
@@ -185,8 +182,8 @@ void executeEvents()
 
     float endDepthPoint=0;
 
-    offlineImage.pushMatrix();
-    offlineImage.translate(0, 0, startDepths[i]  +100);
+    pushMatrix();
+    translate(0, 0, startDepths[i]  +100);
 
     float faceColor = 0;
     //If shape is the current shape
@@ -203,71 +200,71 @@ void executeEvents()
       endDepthPoint = endDepths[i];
     }
     //fill(fills[i]);
-    offlineImage.noStroke();
+    noStroke();
     //drawPyramid();
-    offlineImage.pushMatrix();
-    offlineImage.translate(translateInnerShapeX[i], translateInnerShapeY[i], 0);
+    pushMatrix();
+    translate(translateInnerShapeX[i], translateInnerShapeY[i], 0);
     drawBox(widths[i], heights[i], endDepthPoint, faceColor, .8, .9, 0, 0, 0, 0, 0, .3);
-    offlineImage.popMatrix();
+    popMatrix();
 
-    offlineImage.stroke(1);
-    offlineImage.strokeWeight(.1);
-    offlineImage.scale(10);
-    offlineImage.noFill();
-    offlineImage.rotateZ(radians(widths[i]));
+    stroke(1);
+    strokeWeight(.1);
+    scale(10);
+    noFill();
+    rotateZ(radians(widths[i]));
 
     //drawHeMesh(); 
     drawCurveHeMesh();
 
-    offlineImage.popMatrix();
+    popMatrix();
   }
 }
 
 void drawBox(float boxWidth, float boxHeight, float endDepthPoint, float faceR, float faceG, float faceB, float startR, float startG, float startB, float endR, float endG, float endB)
 {
-  offlineImage.beginShape(QUADS);
-  offlineImage.fill(endR, endG, endB);
-  offlineImage.vertex(-boxWidth/2, boxHeight/2, 0);
-  offlineImage.vertex( boxWidth/2, boxHeight/2, 0);
-  offlineImage.vertex( boxWidth/2, -boxHeight/2, 0);
-  offlineImage.vertex(-boxWidth/2, -boxHeight/2, 0);
+  beginShape(QUADS);
+  fill(endR, endG, endB);
+  vertex(-boxWidth/2, boxHeight/2, 0);
+  vertex( boxWidth/2, boxHeight/2, 0);
+  vertex( boxWidth/2, -boxHeight/2, 0);
+  vertex(-boxWidth/2, -boxHeight/2, 0);
 
-  offlineImage.fill(endR, endG, endB);
-  offlineImage.vertex( boxWidth/2, boxHeight/2, 0);
-  offlineImage.fill(startR, startG, startB);
-  offlineImage.vertex( boxWidth/2, boxHeight/2, endDepthPoint);
-  offlineImage.vertex( boxWidth/2, -boxHeight/2, endDepthPoint);
-  offlineImage.fill(endR, endG, endB);
-  offlineImage.vertex( boxWidth/2, -boxHeight/2, 0);
+  fill(endR, endG, endB);
+  vertex( boxWidth/2, boxHeight/2, 0);
+  fill(startR, startG, startB);
+  vertex( boxWidth/2, boxHeight/2, endDepthPoint);
+  vertex( boxWidth/2, -boxHeight/2, endDepthPoint);
+  fill(endR, endG, endB);
+  vertex( boxWidth/2, -boxHeight/2, 0);
 
-  offlineImage.fill(faceR, faceG, faceB);
-  offlineImage.vertex( boxWidth/2, boxHeight/2, endDepthPoint);
-  offlineImage.vertex(-boxWidth/2, boxHeight/2, endDepthPoint);
-  offlineImage.vertex(-boxWidth/2, -boxHeight/2, endDepthPoint);
-  offlineImage.vertex( boxWidth/2, -boxHeight/2, endDepthPoint);
+  fill(faceR, faceG, faceB);
+  vertex( boxWidth/2, boxHeight/2, endDepthPoint);
+  vertex(-boxWidth/2, boxHeight/2, endDepthPoint);
+  vertex(-boxWidth/2, -boxHeight/2, endDepthPoint);
+  vertex( boxWidth/2, -boxHeight/2, endDepthPoint);
 
-  offlineImage.fill(startR, startG, startB);
-  offlineImage.vertex(-boxWidth/2, boxHeight/2, endDepthPoint);
-  offlineImage.fill(endR, endG, endB);
-  offlineImage.vertex(-boxWidth/2, boxHeight/2, 0);
-  offlineImage.vertex(-boxWidth/2, -boxHeight/2, 0);
-  offlineImage.fill(startR, startG, startB);
-  offlineImage.vertex(-boxWidth/2, -boxHeight/2, endDepthPoint);
+  fill(startR, startG, startB);
+  vertex(-boxWidth/2, boxHeight/2, endDepthPoint);
+  fill(endR, endG, endB);
+  vertex(-boxWidth/2, boxHeight/2, 0);
+  vertex(-boxWidth/2, -boxHeight/2, 0);
+  fill(startR, startG, startB);
+  vertex(-boxWidth/2, -boxHeight/2, endDepthPoint);
 
-  offlineImage.fill(startR, startG, startB);
-  offlineImage.vertex(-boxWidth/2, boxHeight/2, endDepthPoint);
-  offlineImage.vertex( boxWidth/2, boxHeight/2, endDepthPoint);
-  offlineImage.fill(endR, endG, endB);
-  offlineImage.vertex( boxWidth/2, boxHeight/2, 0);
-  offlineImage.vertex(-boxWidth/2, boxHeight/2, 0);
+  fill(startR, startG, startB);
+  vertex(-boxWidth/2, boxHeight/2, endDepthPoint);
+  vertex( boxWidth/2, boxHeight/2, endDepthPoint);
+  fill(endR, endG, endB);
+  vertex( boxWidth/2, boxHeight/2, 0);
+  vertex(-boxWidth/2, boxHeight/2, 0);
 
-  offlineImage.fill(startR, startG, startB);
-  offlineImage.vertex(-boxWidth/2, -boxHeight/2, endDepthPoint);
-  offlineImage.vertex( boxWidth/2, -boxHeight/2, endDepthPoint);
-  offlineImage.fill(endR, endG, endB);
-  offlineImage.vertex( boxWidth/2, -boxHeight/2, 0);
-  offlineImage.vertex(-boxWidth/2, -boxHeight/2, 0);
-  offlineImage.endShape();
+  fill(startR, startG, startB);
+  vertex(-boxWidth/2, -boxHeight/2, endDepthPoint);
+  vertex( boxWidth/2, -boxHeight/2, endDepthPoint);
+  fill(endR, endG, endB);
+  vertex( boxWidth/2, -boxHeight/2, 0);
+  vertex(-boxWidth/2, -boxHeight/2, 0);
+  endShape();
 }
 
 void drawPyramid()
@@ -293,23 +290,24 @@ void drawPyramid()
 
 void drawCurveHeMesh()
 {
-  offlineImage.beginShape();
-  offlineImage.curveVertex(30.0, -2.706345629988333E-15, -50.0);
-  offlineImage.curveVertex(30.0, 3.416888365748433E-15, 50.0);
-  offlineImage.curveVertex(9.270509831248425, -28.531695488854602, 50.0);
-  offlineImage.curveVertex(9.270509831248425, -28.53169548885461, -50.0);
-  offlineImage.curveVertex(9.270509831248425, -28.531695488854602, 50.0);
-  offlineImage.curveVertex(-24.27050983124842, -17.633557568774194, 50.0);
-  offlineImage.curveVertex(-24.27050983124842, -17.6335575687742, -50.0);
-  offlineImage.curveVertex(-24.27050983124842, -17.633557568774194, 50.0);
-  offlineImage.curveVertex(-24.270509831248425, 17.633557568774194, 50.0);
-  offlineImage.curveVertex(-24.270509831248425, 17.633557568774187, -50.0);
-  offlineImage.curveVertex(-24.270509831248425, 17.633557568774194, 50.0);
-  offlineImage.curveVertex(9.270509831248418, 28.531695488854613, 50.0);
-  offlineImage.curveVertex(9.270509831248418, 28.531695488854606, -50.0);
-  offlineImage.curveVertex(9.270509831248418, 28.531695488854613, 50.0);
-  offlineImage.curveVertex(30.0, -2.706345629988333E-15, -50.0);
-  offlineImage.endShape();
+  beginShape();
+  curveVertex(30.0, -2.706345629988333E-15, -50.0);
+  curveVertex(30.0, 3.416888365748433E-15, 50.0);
+  curveVertex(9.270509831248425, -28.531695488854602, 50.0);
+  curveVertex(9.270509831248425, -28.53169548885461, -50.0);
+  curveVertex(9.270509831248425, -28.531695488854602, 50.0);
+  curveVertex(-24.27050983124842, -17.633557568774194, 50.0);
+  curveVertex(-24.27050983124842, -17.6335575687742, -50.0);
+  curveVertex(-24.27050983124842, -17.633557568774194, 50.0);
+  curveVertex(-24.270509831248425, 17.633557568774194, 50.0);
+  curveVertex(-24.270509831248425, 17.633557568774187, -50.0);
+  curveVertex(-24.270509831248425, 17.633557568774194, 50.0);
+  curveVertex(9.270509831248418, 28.531695488854613, 50.0);
+  curveVertex(9.270509831248418, 28.531695488854606, -50.0);
+  curveVertex(9.270509831248418, 28.531695488854613, 50.0);
+  curveVertex(30.0, -2.706345629988333E-15, -50.0);
+
+  endShape();
 }
 
 void drawHeMesh()
