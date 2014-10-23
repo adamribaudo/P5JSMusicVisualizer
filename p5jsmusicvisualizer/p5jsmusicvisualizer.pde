@@ -20,12 +20,16 @@ float[] faceColors;
 float cameraSpeed = .2;
 float cameraZ = 0;
 float objectStartZ = 0;
-int curGlobalEvent = 0;
 
 float colorHue = 0;
 float colorHueChange = .001;
 
 float perspectiveX = 1;
+
+float maxWidth = 600;
+float maxHeight = 200;
+float minWidth = 1;
+float minHeight = 1;
 
 void setup()
 {
@@ -43,9 +47,8 @@ void setup()
   heights = new float[events.length];
   translateInnerShapeX = new float[events.length];
   translateInnerShapeY = new float[events.length];
-  
+
   faceColors = new float[events.length];
-  
 }
 
 void draw()
@@ -55,26 +58,41 @@ void draw()
   float fov = PI/3.0;
   float cameraZ = (height/2.0) / tan(fov/2.0);
   perspective(fov, width/perspectiveX/float(height), 
-            cameraZ/10.0, cameraZ*10.0);
+  cameraZ/10.0, cameraZ*10.0);
 
   //JavaScript
-  //if (player.isLoaded())
-  //Java version
-  if (player.isPlaying())
+  if (player.isLoaded())
+    //Java version
+    //if (player.isPlaying())
   {
     //JavaScript
-    //playHead = (int)(player.getCurrentTime() * 1000) + 120;
+    playHead = (int)(player.getCurrentTime() * 1000) + 120;
     //Java version
-    playHead = (int)(player.position());
+    //playHead = (int)(player.position());
 
     cameraZ = -playHead - 500;
     objectStartZ = -playHead;
 
-    camera(0, -200, cameraZ, 0.0, -200, 0.0, 0.0, 1.0, 0.0);
+    camera(0, -200, -300, 0.0, -200, 0, 0.0, 1.0, 0.0);
+    //lights();
+
+    pushMatrix();
+    noStroke();
+    fill(colorHue, .8, .5);
+    translate(0, 0, 3100);
+    scale(12);
+    rect(-width/2, -height/2, width, height);
+    //directionalLight(1, 1, 1, 0, 0, 0);
+    popMatrix();
+
+    pushMatrix();
+    translate(0, 0, -cameraZ);
 
     executeGlobalEvents();
     executeEvents();
     incrementColorHue();
+
+    popMatrix();
   }
 }
 
@@ -95,12 +113,12 @@ int findMaxEvent()
 void incrementColorHue()
 {
   colorHue += colorHueChange;
-  if(colorHue>1)colorHue = 0;
+  if (colorHue>1)colorHue = 0;
 }
 
 int findFirstEvent()
 {
-  int firstEvent = findMaxEvent() - 100;
+  int firstEvent = findMaxEvent() - 12;
   return firstEvent < 0 ? 0 : firstEvent;
 }
 
@@ -116,64 +134,73 @@ float translateInnerShapeYCue = 0;
 
 void executeGlobalEvents()
 {
-
-  //If curGlobalEvent isn't at the last event, check if the playhead has reached the next event 
-  if (curGlobalEvent < globalEvents.length - 1)
-    if (playHead >= globalEvents[curGlobalEvent + 1])
-      curGlobalEvent++;
-
-
-  //0, 739, 2247, 3738, 5237, 6749, 6847, 8249
-  switch(globalEvents[curGlobalEvent])
+  if (playHead >= 0 && playHead < 739)
   {
-  case 0:
-    break;
-  case 739:
-    break;
-  case 2247:
-  translateInnerShapeXCue = -200;
-  
-    break;
-  case 3738:
-  translateInnerShapeXCue = 200;
-    break;
-    case 5237:
+    maxWidth = 400;
+    maxHeight = 200;
+  } else if (playHead >= 739 && playHead < 2247)
+  {
+  } else if (playHead >= 2247 && playHead < 3738)
+  {
+    translateInnerShapeXCue = -200;
+  } else if (playHead >= 3738 && playHead < 5237)
+  {
+    translateInnerShapeXCue = 200;
+  } else if (playHead >= 5237 && playHead < 6749)
+  {
     translateInnerShapeXCue = 0;
-    break;
-    case 6749:
+  } else if (playHead >= 6749 && playHead < 6847)
+  {
     perspectiveX = 100;
-    break;
-    case 6847:
+  } else if (playHead >= 6846 && playHead < 8200)
+  {
+
     perspectiveX = 1;
-    break;
+  } else if (playHead >= 8200 && playHead < 8825)
+  {
+    minWidth = 600;
+    maxWidth = 1000;
+    minHeight = 600;
+    maxHeight = 1000;
+  } else if (playHead >= 8825)
+  {
+    minWidth = 1;
+    maxWidth = 600;
+    minHeight = 1;
+    maxHeight = 200;
   }
+
+  
 }
 
 void executeEvents()
 {
- for (int i=findMaxEvent (); i>=findFirstEvent (); i--)
+  for (int i=findMaxEvent (); i>=findFirstEvent (); i--)
   {
     if (!triggers[i])
     {
       fills[i] = (int)random(255);
       startDepths[i] = objectStartZ;
       triggers[i] = true;
-      widths[i] = random(600);
-      heights[i] = random(200);
-      
+      widths[i] = random(minWidth, maxWidth);
+      heights[i] = random(minHeight, maxHeight);
+
       //Translate inner shape
       translateInnerShapeX[i] = translateInnerShapeXCue;
       translateInnerShapeY[i] = translateInnerShapeYCue;
-      
+
       faceColors[i] = colorHue;
-      
+
       if (i > 0)
       {
         endDepths[i-1] = startDepths[i] - startDepths[i-1];
       }
     }
 
+
     float endDepthPoint=0;
+
+
 
     pushMatrix();
     translate(0, 0, startDepths[i]  +100);
@@ -183,7 +210,7 @@ void executeEvents()
     if (i == findMaxEvent())
     {
       faceColor = colorHue;
-      
+
       endDepthPoint = objectStartZ - startDepths[i] - 1;
     }
     //process older shapes
@@ -194,7 +221,6 @@ void executeEvents()
     }
     //fill(fills[i]);
     noStroke();
-    //drawPyramid();
     pushMatrix();
     translate(translateInnerShapeX[i], translateInnerShapeY[i], 0);
     drawBox(widths[i], heights[i], endDepthPoint, faceColor, .8, .9, 0, 0, 0, 0, 0, .3);
@@ -208,7 +234,6 @@ void executeEvents()
 
     //drawHeMesh(); 
     drawCurveHeMesh();
-
     popMatrix();
   }
 }
@@ -257,7 +282,7 @@ void drawBox(float boxWidth, float boxHeight, float endDepthPoint, float faceR, 
   fill(endR, endG, endB);
   vertex( boxWidth/2, -boxHeight/2, 0);
   vertex(-boxWidth/2, -boxHeight/2, 0);
-  endShape();
+  endShape(CLOSE);
 }
 
 void drawPyramid()
@@ -326,10 +351,6 @@ void drawHeMesh()
 }
 
 //Coincidence
-int [] globalEvents = {
-  0, 739, 2247, 3738, 5237, 6749, 6847, 8249
-};
-
 int [] events = {
   22
     , 398
